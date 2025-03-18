@@ -13,9 +13,6 @@ import appleConfig from './auth-apple/config/apple.config';
 import path from 'path';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthAppleModule } from './auth-apple/auth-apple.module';
-import { AuthFacebookModule } from './auth-facebook/auth-facebook.module';
-import { AuthGoogleModule } from './auth-google/auth-google.module';
 import { HeaderResolver, I18nModule } from 'nestjs-i18n';
 import { TypeOrmConfigService } from './database/typeorm-config.service';
 import { MailModule } from './mail/mail.module';
@@ -85,9 +82,9 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
     UsersModule,
     FilesModule,
     AuthModule,
-    AuthFacebookModule,
-    AuthGoogleModule,
-    AuthAppleModule,
+    // AuthFacebookModule,
+    // AuthGoogleModule,
+    // AuthAppleModule,
     SessionModule,
     MailModule,
     MailerModule,
