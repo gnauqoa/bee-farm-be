@@ -15,8 +15,8 @@ export class UserMapper {
     domainEntity.password = raw.password;
     domainEntity.provider = raw.provider;
     domainEntity.socialId = raw.socialId;
-    domainEntity.firstName = raw.firstName;
-    domainEntity.lastName = raw.lastName;
+    domainEntity.fullName = raw.fullName;
+
     if (raw.photo) {
       domainEntity.photo = FileMapper.toDomain(raw.photo);
     } else if (raw.photo === null) {
@@ -71,8 +71,8 @@ export class UserMapper {
     persistenceSchema.password = domainEntity.password;
     persistenceSchema.provider = domainEntity.provider;
     persistenceSchema.socialId = domainEntity.socialId;
-    persistenceSchema.firstName = domainEntity.firstName;
-    persistenceSchema.lastName = domainEntity.lastName;
+    persistenceSchema.fullName = domainEntity.fullName;
+
     persistenceSchema.photo = photo;
     persistenceSchema.role = role;
     persistenceSchema.status = status;

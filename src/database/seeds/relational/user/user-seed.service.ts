@@ -29,8 +29,7 @@ export class UserSeedService {
 
       await this.repository.save(
         this.repository.create({
-          firstName: 'Super',
-          lastName: 'Admin',
+          fullName: 'Super Admin',
           email: 'admin@example.com',
           password,
           role: {
@@ -59,8 +58,7 @@ export class UserSeedService {
 
       await this.repository.save(
         this.repository.create({
-          firstName: 'John',
-          lastName: 'Doe',
+          fullName: 'Super Admin',
           email: 'john.doe@example.com',
           password,
           role: {

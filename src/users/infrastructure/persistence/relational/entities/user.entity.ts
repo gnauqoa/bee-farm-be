@@ -43,11 +43,7 @@ export class UserEntity extends EntityRelationalHelper {
 
   @Index()
   @Column({ type: String, nullable: true })
-  firstName: string | null;
-
-  @Index()
-  @Column({ type: String, nullable: true })
-  lastName: string | null;
+  fullName: string | null;
 
   @OneToOne(() => FileEntity, {
     eager: true,

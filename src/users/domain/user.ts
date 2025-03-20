@@ -46,13 +46,7 @@ export class User {
     type: String,
     example: 'John',
   })
-  firstName: string | null;
-
-  @ApiProperty({
-    type: String,
-    example: 'Doe',
-  })
-  lastName: string | null;
+  fullName: string | null;
 
   @ApiProperty({
     type: () => FileType,
