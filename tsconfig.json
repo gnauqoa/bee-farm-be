@@ -17,6 +17,12 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "paths": {
+      "@filters/*": ["./src/filters/*"],
+      "@guards/*": ["./src/guards/*"],
+      "@auth/*": ["./src/auth/*"],
+      "@utils/*": ["./src/utils/*"]
+    }
   }
 }

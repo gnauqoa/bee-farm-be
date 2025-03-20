@@ -23,6 +23,7 @@ import { UsersCrudService } from './users-crud.service';
     update: UpdateUserDto,
   },
   query: {
+    softDelete: true,
     alwaysPaginate: true,
     maxLimit: 100,
     limit: 10,
