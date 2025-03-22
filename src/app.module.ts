@@ -93,6 +93,6 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
     HomeModule,
     DevicesModule,
   ],
-  providers: [AppGateway],
+  providers: [AppGateway, AuthModule],
 })
 export class AppModule {}

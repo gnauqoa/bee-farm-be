@@ -3,10 +3,13 @@ import { DevicesService } from './devices.service';
 import { DevicesController } from './devices.controller';
 import { DeviceEntity } from './infrastructure/persistence/relational/entities/device.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AppGateway } from '../app.gateway';
+import { AuthModule } from '../auth/auth.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([DeviceEntity])],
+  imports: [TypeOrmModule.forFeature([DeviceEntity]), AuthModule, UsersModule],
   controllers: [DevicesController],
-  providers: [DevicesService],
+  providers: [DevicesService, AppGateway],
 })
 export class DevicesModule {}
