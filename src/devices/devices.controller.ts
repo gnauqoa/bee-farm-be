@@ -28,8 +28,10 @@ import { AppGateway } from '../app.gateway'; // Import AppGateway từ AppModule
     maxLimit: 100,
     limit: 10,
     cache: 0,
-    sort: [{ field: 'id', order: 'ASC' }],
     softDelete: true,
+    join: {
+      user: { eager: true },
+    },
   },
   params: {
     id: {

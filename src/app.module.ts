@@ -26,6 +26,8 @@ import { MongooseConfigService } from './database/mongoose-config.service';
 import { DatabaseConfig } from './database/config/database-config.type';
 import { DevicesModule } from './devices/devices.module';
 import { AppGateway } from './app.gateway';
+import { WsAuthGuard } from './guards/ws.guard';
+import { WsDeviceGuard } from './guards/ws-device.guard';
 
 // <database-block>
 const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
@@ -93,6 +95,12 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
     HomeModule,
     DevicesModule,
   ],
-  providers: [AppGateway, AuthModule],
+  providers: [
+    AppGateway,
+    AuthModule,
+    DevicesModule,
+    WsAuthGuard,
+    WsDeviceGuard,
+  ],
 })
 export class AppModule {}

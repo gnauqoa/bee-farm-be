@@ -1,9 +1,4 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Socket } from 'socket.io';
 import { ConfigService } from '@nestjs/config';
@@ -24,7 +19,8 @@ export class WsAuthGuard implements CanActivate {
     const token = client.handshake.auth?.token || client.handshake.query?.token;
 
     if (!token) {
-      throw new UnauthorizedException('Token is missing');
+      console.error('WsAuthGuard error: Unauthorized connection');
+      return false;
     }
 
     try {
@@ -39,8 +35,8 @@ export class WsAuthGuard implements CanActivate {
       client.data.user = user; // Lưu thông tin user vào client
       return true;
     } catch (error) {
-      console.log(`WsAuthGuard error: ${error.message}`);
-      throw new UnauthorizedException('Invalid or expired token');
+      console.error(`WsAuthGuard error: ${error.message}`);
+      return false;
     }
   }
 }
