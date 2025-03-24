@@ -11,6 +11,6 @@ import { UsersModule } from '../users/users.module';
   imports: [TypeOrmModule.forFeature([DeviceEntity]), AuthModule, UsersModule],
   controllers: [DevicesController],
   providers: [DevicesService, AppGateway],
-  exports: [DevicesService],
+  exports: [DevicesService, TypeOrmModule.forFeature([DeviceEntity])],
 })
 export class DevicesModule {}

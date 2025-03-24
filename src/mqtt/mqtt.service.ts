@@ -3,7 +3,10 @@ import { ConfigService } from '@nestjs/config';
 import { connect, MqttClient } from 'mqtt';
 import { error, info } from 'ps-logger';
 import { DevicesService } from '../devices/devices.service';
-import { DeviceEntity } from '../devices/infrastructure/persistence/relational/entities/device.entity';
+import {
+  DeviceEntity,
+  DeviceStatus,
+} from '../devices/infrastructure/persistence/relational/entities/device.entity';
 import { AppGateway } from '../app.gateway';
 
 @Injectable()
@@ -31,13 +34,13 @@ export class MqttService implements OnModuleInit {
     });
 
     this.mqttClient.on('connect', () => {
-      info('✅ Connected to CloudMQTT');
+      info('Connected to CloudMQTT');
 
       this.mqttClient.subscribe('device:update', (err) => {
         if (err) {
-          error('❌ Error subscribing to device:update');
+          error('Error subscribing to device:update');
         } else {
-          info('✅ Subscribed to device:update');
+          info('Subscribed to device:update');
         }
       });
     });
@@ -53,12 +56,12 @@ export class MqttService implements OnModuleInit {
     });
 
     this.mqttClient.on('error', (err) => {
-      error(`❌ Error in connecting to CloudMQTT: ${err}`);
+      error(`Error in connecting to CloudMQTT: ${err}`);
     });
   }
 
   private async handleDeviceUpdate(data: DeviceEntity) {
-    info(`🔄 Handling device update: ${JSON.stringify(data)}`);
+    info(`Device update: ${JSON.stringify(data)}`);
 
     const newDevice = await this.deviceService.updateDevice(data.id, {
       btn1: data.btn1,
@@ -68,6 +71,7 @@ export class MqttService implements OnModuleInit {
       lux: data.lux,
       temp: data.temp,
       humi: data.humi,
+      status: DeviceStatus.ONLINE,
     });
 
     this.appGateway.emitToClients(`device:${data.id}`, newDevice);

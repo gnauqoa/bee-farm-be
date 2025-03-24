@@ -29,6 +29,8 @@ import { AppGateway } from './app.gateway';
 import { WsAuthGuard } from './guards/ws.guard';
 import { WsDeviceGuard } from './guards/ws-device.guard';
 import { MqttModule } from './mqtt/mqtt.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { CheckDeviceService } from './cron/check-device.service';
 
 // <database-block>
 const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
@@ -46,6 +48,7 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
       load: [
@@ -97,12 +100,6 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
     DevicesModule,
     MqttModule,
   ],
-  providers: [
-    AppGateway,
-    AuthModule,
-    DevicesModule,
-    WsAuthGuard,
-    WsDeviceGuard,
-  ],
+  providers: [AppGateway, WsAuthGuard, WsDeviceGuard, CheckDeviceService],
 })
 export class AppModule {}
