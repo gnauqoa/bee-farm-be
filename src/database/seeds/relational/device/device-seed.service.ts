@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeviceEntity } from '../../../../devices/infrastructure/persistence/relational/entities/device.entity';
 import { Repository } from 'typeorm';
 import { UserEntity } from '../../../../users/infrastructure/persistence/relational/entities/user.entity';
+import { info } from 'ps-logger';
 
 const devices = [
   {
@@ -40,7 +41,7 @@ export class deviceSeedService {
   async run() {
     await this.repository.delete({});
     const user = await this.userRepository.findOne({});
-    console.log('Run seed device module');
+    info('Run seed device module');
     if (user)
       for (const device of devices) {
         await this.repository.save(

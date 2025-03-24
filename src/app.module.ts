@@ -28,6 +28,7 @@ import { DevicesModule } from './devices/devices.module';
 import { AppGateway } from './app.gateway';
 import { WsAuthGuard } from './guards/ws.guard';
 import { WsDeviceGuard } from './guards/ws-device.guard';
+import { MqttModule } from './mqtt/mqtt.module';
 
 // <database-block>
 const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
@@ -94,6 +95,7 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
     MailerModule,
     HomeModule,
     DevicesModule,
+    MqttModule,
   ],
   providers: [
     AppGateway,

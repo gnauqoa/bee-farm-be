@@ -17,6 +17,7 @@ import { UserRepository } from './users/infrastructure/persistence/user.reposito
 import { DevicesService } from './devices/devices.service';
 import { WsAuthGuard } from './guards/ws.guard';
 import { WsDeviceGuard } from './guards/ws-device.guard';
+import { info, error } from 'ps-logger';
 
 @Injectable()
 @WebSocketGateway({ cors: { origin: '*' } })
@@ -35,7 +36,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const token = client.handshake.auth?.token || client.handshake.query?.token;
 
     if (!token) {
-      console.log('Socket IO error - Unauthorized connection');
+      error('Socket IO - Unauthorized connection');
       return false;
     }
 
@@ -47,16 +48,15 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
 
       const user = await this.userRepository.findById(jwtData.id);
-
-      client.data.user = user; // Lưu thông tin user vào client
+      client.data.user = user; // Save user data into client
       return true;
-    } catch (error) {
-      console.log(`Socket IO error - ${error.message}`);
+    } catch (err) {
+      error(`Socket IO - ${err.message}`);
     }
   }
 
   handleDisconnect(client: Socket) {
-    console.log(`Client disconnected: ${client.id}`);
+    info(`Client disconnected: ${client.id}`);
   }
 
   @UseGuards(WsAuthGuard, WsDeviceGuard)
@@ -72,8 +72,23 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
 
       await this.deviceService.updateDevicePin(data.id, data);
-    } catch (error) {
-      console.log(`Socket IO error - ${error.message}`);
+
+      this.emitToClients('device:update', { deviceId: data.id, ...data });
+
+      info(`📢 Emitted device:update for device ID: ${data.id}`);
+    } catch (err) {
+      error(`Socket IO - ${err.message}`);
+    }
+  }
+
+  emitToClients(event: string, data: any) {
+    this.server.emit(event, data);
+  }
+
+  emitToClient(clientId: string, event: string, data: any) {
+    const client = this.server.sockets.sockets.get(clientId);
+    if (client) {
+      client.emit(event, data);
     }
   }
 }
