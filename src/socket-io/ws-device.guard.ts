@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { DevicesService } from '../devices/devices.service';
 import { Socket } from 'socket.io';
+import { error } from 'ps-logger';
 
 @Injectable()
 export class WsDeviceGuard implements CanActivate {
@@ -20,25 +21,36 @@ export class WsDeviceGuard implements CanActivate {
     const data = context.switchToWs().getData(); // Extract event data (contains device ID)
 
     if (!client.data.user) {
-      console.error('WsDeviceGuard error: Unauthorized connection');
+      error('WsDeviceGuard error: Unauthorized connection');
       return false;
     }
+
+    const user_id = client.data.user.id;
+    const role = client.data.user.role;
 
     const device = await this.devicesService.findOne({
       where: { id: data.deviceId },
+      join: {
+        alias: 'device',
+        leftJoinAndSelect: {
+          user: 'device.user',
+        },
+      },
     });
 
     if (!device) {
-      console.error(`WsDeviceGuard error: Device ${data.deviceId} not found`);
+      error(`WsDeviceGuard error: Device ${data.deviceId} not found`);
       return false;
     }
 
-    if (device.user_id !== client.data.user.id) {
-      console.error(
-        `WsDeviceGuard error: Device ${data.deviceId} not owned by user ${client.data.user.id}`,
+    if (role !== 'admin' && device.user_id !== user_id) {
+      error(
+        `WsDeviceGuard error: Permission denied for device ${data.deviceId}`,
       );
       return false;
     }
+
+    client.data.device = device;
 
     return true;
   }

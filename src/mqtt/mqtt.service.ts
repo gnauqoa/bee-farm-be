@@ -32,9 +32,9 @@ export class MqttService implements OnModuleInit {
     this.mqttClient.on('connect', () => {
       info('MQTT - Connected');
 
-      this.mqttClient.subscribe('device:update', (err) => {
+      this.mqttClient.subscribe('device/update', (err) => {
         if (err) {
-          error('MQTT - Error subscribing to device:update');
+          error('MQTT - Error subscribing to device/update');
         } else {
           info('MQTT - Subscribed device:update');
         }
@@ -42,7 +42,7 @@ export class MqttService implements OnModuleInit {
     });
 
     this.mqttClient.on('message', async (topic, message) => {
-      if (topic === 'device:update') {
+      if (topic === 'device/update') {
         await this.handleDeviceUpdate(JSON.parse(message.toString()));
       }
     });

@@ -32,7 +32,7 @@ export class WsAuthGuard implements CanActivate {
 
       const user = await this.userRepository.findById(jwtData.id);
 
-      client.data.user = user; // Lưu thông tin user vào client
+      client.data.user = user;
       return true;
     } catch (error) {
       console.error(`WsAuthGuard error: ${error.message}`);

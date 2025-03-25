@@ -9,11 +9,6 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { forwardRef, Inject, Injectable, UseGuards } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { JwtPayloadType } from '../auth/strategies/types/jwt-payload.type';
-import { ConfigService } from '@nestjs/config';
-import { AllConfigType } from '../config/config.type';
-import { UserRepository } from '../users/infrastructure/persistence/user.repository';
 import { WsAuthGuard } from './ws.guard';
 import { info, error } from 'ps-logger';
 import { DevicesService } from '../devices/devices.service';
@@ -28,34 +23,12 @@ export class SocketIoGateway
   server: Server;
 
   constructor(
-    private readonly jwtService: JwtService,
-    private readonly configService: ConfigService<AllConfigType>,
-    private readonly userRepository: UserRepository,
     @Inject(forwardRef(() => DevicesService))
     private readonly deviceService: DevicesService,
   ) {}
 
-  async handleConnection(client: Socket) {
-    const token = client.handshake.auth?.token || client.handshake.query?.token;
-
-    if (!token) {
-      error('Socket IO - Unauthorized connection');
-      return false;
-    }
-
-    try {
-      const jwtData = this.jwtService.verify<JwtPayloadType>(token, {
-        secret: this.configService.getOrThrow('auth.secret', {
-          infer: true,
-        }),
-      });
-
-      const user = await this.userRepository.findById(jwtData.id);
-      client.data.user = user; // Save user data into client
-      return true;
-    } catch (err) {
-      error(`Socket IO - ${err.message}`);
-    }
+  handleConnection(client: Socket) {
+    info(`Client connected: ${client.id}`);
   }
 
   handleDisconnect(client: Socket) {
@@ -63,7 +36,34 @@ export class SocketIoGateway
   }
 
   @UseGuards(WsAuthGuard, WsDeviceGuard)
-  @SubscribeMessage('device:update-pin')
+  @SubscribeMessage('join_device_room')
+  async onJoinDeviceRoom(
+    @MessageBody() device_id: string,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const room = `device/${device_id}`;
+    if (!client.rooms.has(room)) {
+      await client.join(room);
+      client.emit('joined_device_room', room);
+      client.emit('device_data', client.data.device);
+    }
+  }
+
+  @UseGuards(WsAuthGuard, WsDeviceGuard)
+  @SubscribeMessage('leave_device_room')
+  async onLeaveDeviceRoom(
+    @MessageBody() device_id: string,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const room = `device/${device_id}`;
+    if (client.rooms.has(room)) {
+      await client.leave(room);
+      client.emit('leaved_device_room', room);
+    }
+  }
+
+  @UseGuards(WsAuthGuard, WsDeviceGuard)
+  @SubscribeMessage('update_device_pin')
   async handleUpdateDevice(
     @MessageBody() data: any,
     @ConnectedSocket() client: Socket,
@@ -91,5 +91,9 @@ export class SocketIoGateway
     if (client) {
       client.emit(event, data);
     }
+  }
+
+  emitToRoom(room: string, event: string, data: any) {
+    this.server.to(room).emit(event, data);
   }
 }
