@@ -8,6 +8,7 @@ import {
 import { DevicesService } from '../devices/devices.service';
 import { Socket } from 'socket.io';
 import { error } from 'ps-logger';
+import { RoleEnum } from '../roles/roles.enum';
 
 @Injectable()
 export class WsDeviceGuard implements CanActivate {
@@ -43,7 +44,7 @@ export class WsDeviceGuard implements CanActivate {
       return false;
     }
 
-    if (role !== 'admin' && device.user_id !== user_id) {
+    if (role.id !== RoleEnum.admin && device.user_id !== user_id) {
       error(
         `WsDeviceGuard error: Permission denied for device ${data.deviceId}`,
       );
