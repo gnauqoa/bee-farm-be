@@ -25,12 +25,11 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { MongooseConfigService } from './database/mongoose-config.service';
 import { DatabaseConfig } from './database/config/database-config.type';
 import { DevicesModule } from './devices/devices.module';
-import { AppGateway } from './app.gateway';
-import { WsAuthGuard } from './guards/ws.guard';
-import { WsDeviceGuard } from './guards/ws-device.guard';
 import { MqttModule } from './mqtt/mqtt.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CheckDeviceService } from './cron/check-device.service';
+import { SocketIoModule } from './socket-io/socket-io.module';
+import { SocketIoGateway } from './socket-io/socket-io.gateway';
 
 // <database-block>
 const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
@@ -99,7 +98,8 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
     HomeModule,
     DevicesModule,
     MqttModule,
+    SocketIoModule,
   ],
-  providers: [AppGateway, WsAuthGuard, WsDeviceGuard, CheckDeviceService],
+  providers: [SocketIoGateway, CheckDeviceService],
 })
 export class AppModule {}

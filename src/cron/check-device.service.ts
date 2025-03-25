@@ -8,14 +8,14 @@ import {
 } from '../devices/infrastructure/persistence/relational/entities/device.entity';
 import dayjs from 'dayjs';
 import { info } from 'console';
-import { AppGateway } from '../app.gateway';
+import { SocketIoGateway } from '../socket-io/socket-io.gateway';
 
 @Injectable()
 export class CheckDeviceService {
   constructor(
     @InjectRepository(DeviceEntity)
     private readonly deviceRepository: Repository<DeviceEntity>,
-    private readonly appGateway: AppGateway,
+    private readonly socketIoGateway: SocketIoGateway,
   ) {}
 
   @Cron(CronExpression.EVERY_5_MINUTES)
@@ -39,7 +39,7 @@ export class CheckDeviceService {
       );
 
       for (const device of offlineDevices) {
-        this.appGateway.emitToClients(`device:${device.id}`, {
+        this.socketIoGateway.emitToClients(`device:${device.id}`, {
           ...device,
           status: DeviceStatus.OFFLINE,
         });

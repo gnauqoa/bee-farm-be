@@ -15,7 +15,7 @@ import { RoleEnum } from '../roles/roles.enum';
 import { UpdateDeviceDto } from './dto/update-device.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../roles/roles.guard';
-import { AppGateway } from '../app.gateway'; // Import AppGateway từ AppModule
+import { SocketIoGateway } from '../socket-io/socket-io.gateway';
 
 @ApiBearerAuth()
 @Roles(RoleEnum.admin)
@@ -46,7 +46,7 @@ import { AppGateway } from '../app.gateway'; // Import AppGateway từ AppModule
 export class DevicesController implements CrudController<DeviceEntity> {
   constructor(
     public service: DevicesService,
-    private readonly gateway: AppGateway,
+    private readonly socketIoGateway: SocketIoGateway,
   ) {}
 
   get base(): CrudController<DeviceEntity> {
@@ -60,7 +60,10 @@ export class DevicesController implements CrudController<DeviceEntity> {
   ): Promise<DeviceEntity> {
     const updatedDevice = await this.service.updateOne(req, dto);
 
-    this.gateway.server.emit(`device:${updatedDevice.id}`, updatedDevice);
+    this.socketIoGateway.emitToClients(
+      `device:${updatedDevice.id}`,
+      updatedDevice,
+    );
 
     return updatedDevice;
   }

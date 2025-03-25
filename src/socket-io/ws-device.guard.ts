@@ -1,10 +1,19 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  forwardRef,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { DevicesService } from '../devices/devices.service';
 import { Socket } from 'socket.io';
 
 @Injectable()
 export class WsDeviceGuard implements CanActivate {
-  constructor(private readonly devicesService: DevicesService) {}
+  constructor(
+    @Inject(forwardRef(() => DevicesService))
+    private readonly devicesService: DevicesService,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const client: Socket = context.switchToWs().getClient();

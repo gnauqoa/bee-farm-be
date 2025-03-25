@@ -30,6 +30,6 @@ const infrastructurePersistenceModule = (databaseConfig() as DatabaseConfig)
   ],
   controllers: [UsersController],
   providers: [UsersService, UsersCrudService],
-  exports: [UsersService, infrastructurePersistenceModule],
+  exports: [UsersService, infrastructurePersistenceModule, TypeOrmModule],
 })
 export class UsersModule {}

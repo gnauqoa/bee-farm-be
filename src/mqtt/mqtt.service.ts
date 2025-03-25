@@ -1,13 +1,9 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { connect, MqttClient } from 'mqtt';
 import { error, info } from 'ps-logger';
 import { DevicesService } from '../devices/devices.service';
-import {
-  DeviceEntity,
-  DeviceStatus,
-} from '../devices/infrastructure/persistence/relational/entities/device.entity';
-import { AppGateway } from '../app.gateway';
+import { DeviceEntity } from '../devices/infrastructure/persistence/relational/entities/device.entity';
 
 @Injectable()
 export class MqttService implements OnModuleInit {
@@ -15,8 +11,8 @@ export class MqttService implements OnModuleInit {
 
   constructor(
     private configService: ConfigService,
+    @Inject(forwardRef(() => DevicesService))
     private deviceService: DevicesService,
-    private readonly appGateway: AppGateway,
   ) {}
 
   onModuleInit() {
@@ -34,46 +30,44 @@ export class MqttService implements OnModuleInit {
     });
 
     this.mqttClient.on('connect', () => {
-      info('Connected to CloudMQTT');
+      info('MQTT - Connected');
 
       this.mqttClient.subscribe('device:update', (err) => {
         if (err) {
-          error('Error subscribing to device:update');
+          error('MQTT - Error subscribing to device:update');
         } else {
-          info('Subscribed to device:update');
+          info('MQTT - Subscribed device:update');
         }
       });
     });
 
-    this.mqttClient.on('message', (topic, message) => {
-      info(`📩 Received message on ${topic}: ${message.toString()}`);
-
+    this.mqttClient.on('message', async (topic, message) => {
       if (topic === 'device:update') {
-        this.handleDeviceUpdate(JSON.parse(message.toString()))
-          .then(() => {})
-          .catch(() => {});
+        await this.handleDeviceUpdate(JSON.parse(message.toString()));
       }
     });
 
     this.mqttClient.on('error', (err) => {
-      error(`Error in connecting to CloudMQTT: ${err}`);
+      error(`MQTT - Error in connecting to CloudMQTT: ${err}`);
     });
   }
 
   private async handleDeviceUpdate(data: DeviceEntity) {
-    info(`Device update: ${JSON.stringify(data)}`);
+    info(`MQTT - Device update sensor: ${JSON.stringify(data)}`);
 
-    const newDevice = await this.deviceService.updateDevice(data.id, {
-      btn1: data.btn1,
-      btn2: data.btn2,
-      btn3: data.btn3,
-      btn4: data.btn4,
-      lux: data.lux,
-      temp: data.temp,
-      humi: data.humi,
-      status: DeviceStatus.ONLINE,
-    });
+    await this.deviceService.updateDevice(data.id, data);
+  }
 
-    this.appGateway.emitToClients(`device:${data.id}`, newDevice);
+  public publicMessage(topic: string, message: any) {
+    if (typeof message !== 'string') {
+      message = JSON.stringify(message);
+    }
+
+    if (!this.mqttClient.connected) {
+      error('MQTT - Client not connected');
+      return;
+    }
+
+    this.mqttClient.publish(topic, message);
   }
 }

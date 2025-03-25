@@ -8,20 +8,22 @@ import {
   ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { Injectable, UseGuards } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, UseGuards } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { JwtPayloadType } from './auth/strategies/types/jwt-payload.type';
+import { JwtPayloadType } from '../auth/strategies/types/jwt-payload.type';
 import { ConfigService } from '@nestjs/config';
-import { AllConfigType } from './config/config.type';
-import { UserRepository } from './users/infrastructure/persistence/user.repository';
-import { DevicesService } from './devices/devices.service';
-import { WsAuthGuard } from './guards/ws.guard';
-import { WsDeviceGuard } from './guards/ws-device.guard';
+import { AllConfigType } from '../config/config.type';
+import { UserRepository } from '../users/infrastructure/persistence/user.repository';
+import { WsAuthGuard } from './ws.guard';
 import { info, error } from 'ps-logger';
+import { DevicesService } from '../devices/devices.service';
+import { WsDeviceGuard } from './ws-device.guard';
 
 @Injectable()
 @WebSocketGateway({ cors: { origin: '*' } })
-export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class SocketIoGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   server: Server;
 
@@ -29,6 +31,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService<AllConfigType>,
     private readonly userRepository: UserRepository,
+    @Inject(forwardRef(() => DevicesService))
     private readonly deviceService: DevicesService,
   ) {}
 
@@ -71,11 +74,9 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return;
       }
 
+      info(`Socket IO - Update device pin: ${JSON.stringify(data)}`);
+
       await this.deviceService.updateDevicePin(data.id, data);
-
-      this.emitToClients('device:update', { deviceId: data.id, ...data });
-
-      info(`📢 Emitted device:update for device ID: ${data.id}`);
     } catch (err) {
       error(`Socket IO - ${err.message}`);
     }
