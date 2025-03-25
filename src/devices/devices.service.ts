@@ -6,7 +6,6 @@ import {
   DeviceEntity,
   DeviceStatus,
 } from './infrastructure/persistence/relational/entities/device.entity';
-import { info } from 'ps-logger';
 import { MqttService } from '../mqtt/mqtt.service';
 import {
   UpdateDevicePinDto,
@@ -27,17 +26,13 @@ export class DevicesService extends TypeOrmCrudService<DeviceEntity> {
   }
 
   async updateDevicePin(id: number, device: UpdateDevicePinDto) {
-    info(
-      `Device updated pin: ${device.id}, btn1: ${device.btn1}, btn2: ${device.btn2}, btn3: ${device.btn3}, btn4: ${device.btn4}`,
-    );
-
     await this.repo.update(id, device);
 
     const newDevice = await this.repo.findOne({
       where: { id },
     });
 
-    this.mqttService.publicMessage(`device:${device.id}`, device);
+    this.mqttService.publicMessage(`device:${device.id}`, newDevice);
 
     return newDevice;
   }

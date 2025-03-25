@@ -32,6 +32,7 @@ import { SocketIoGateway } from '../socket-io/socket-io.gateway';
     join: {
       user: { eager: true },
     },
+    sort: [{ field: 'createdAt', order: 'ASC' }],
   },
   params: {
     id: {
