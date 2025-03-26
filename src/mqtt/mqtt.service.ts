@@ -36,7 +36,7 @@ export class MqttService implements OnModuleInit {
         if (err) {
           error('MQTT - Error subscribing to device/update');
         } else {
-          info('MQTT - Subscribed device:update');
+          info('MQTT - Subscribed device/update');
         }
       });
     });

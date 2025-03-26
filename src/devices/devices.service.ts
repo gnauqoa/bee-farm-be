@@ -57,7 +57,12 @@ export class DevicesService extends TypeOrmCrudService<DeviceEntity> {
 
         await queryRunner.commitTransaction();
 
-        this.mqttService.publicMessage(`device/${id}`, payload);
+        this.mqttService.publicMessage(`device/${id}`, {
+          btn1: payload.btn1,
+          btn2: payload.btn2,
+          btn3: payload.btn3,
+          btn4: payload.btn4,
+        });
         return payload;
       }
 
@@ -132,9 +137,6 @@ export class DevicesService extends TypeOrmCrudService<DeviceEntity> {
       btn2: newDevice.btn2,
       btn3: newDevice.btn3,
       btn4: newDevice.btn4,
-      humi: newDevice.humi,
-      lux: newDevice.lux,
-      temp: newDevice.temp,
     });
 
     return newDevice;
