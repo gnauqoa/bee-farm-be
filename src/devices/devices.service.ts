@@ -51,7 +51,10 @@ export class DevicesService extends TypeOrmCrudService<DeviceEntity> {
         device.btn3 !== payload.btn3 ||
         device.btn4 !== payload.btn4 ||
         device.tempRange !== payload.tempRange ||
-        device.mosfetSpeed !== payload.mosfetSpeed
+        device.humiRange !== payload.humiRange ||
+        device.luxRange !== payload.luxRange ||
+        device.mosfetSpeed !== payload.mosfetSpeed ||
+        device.autoControl !== payload.autoControl
       ) {
         info(`Device updated: ${JSON.stringify(payload)}`);
 
@@ -65,7 +68,10 @@ export class DevicesService extends TypeOrmCrudService<DeviceEntity> {
           btn3: payload.btn3,
           btn4: payload.btn4,
           tempRange: payload.tempRange,
+          humiRange: payload.humiRange,
+          luxRange: payload.luxRange,
           mosfetSpeed: payload.mosfetSpeed,
+          autoControl: payload.autoControl,
         });
         return payload;
       }
@@ -142,7 +148,10 @@ export class DevicesService extends TypeOrmCrudService<DeviceEntity> {
       btn3: newDevice.btn3,
       btn4: newDevice.btn4,
       tempRange: newDevice.tempRange,
+      humiRange: newDevice.humiRange,
+      luxRange: newDevice.luxRange,
       mosfetSpeed: newDevice.mosfetSpeed,
+      autoControl: newDevice.autoControl,
     });
 
     return newDevice;

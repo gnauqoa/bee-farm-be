@@ -67,7 +67,16 @@ export class DeviceEntity {
   tempRange?: number;
 
   @Column({ type: 'float', nullable: true })
+  humiRange?: number;
+
+  @Column({ type: 'float', nullable: true })
+  luxRange?: number;
+
+  @Column({ type: 'float', nullable: true })
   mosfetSpeed?: number;
+
+  @Column({ type: 'boolean', nullable: true })
+  autoControl?: boolean;
 
   @CreateDateColumn()
   createdAt: Date;

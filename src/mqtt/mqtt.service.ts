@@ -53,9 +53,13 @@ export class MqttService implements OnModuleInit {
   }
 
   private async handleDeviceUpdate(data: DeviceEntity) {
-    info(`MQTT - Device update sensor: ${JSON.stringify(data)}`);
-
-    await this.deviceService.mqttUpdate(data.id, data);
+    try {
+      info(`MQTT - Device update sensor: ${JSON.stringify(data)}`);
+      await this.deviceService.mqttUpdate(data.id, data);
+    } catch (err) {
+      error(`MQTT - Error in handleDeviceUpdate:
+      ${err}`);
+    }
   }
 
   public publicMessage(topic: string, message: any) {

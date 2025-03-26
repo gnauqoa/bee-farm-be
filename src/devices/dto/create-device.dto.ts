@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString, IsEnum, IsNumber } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsEnum,
+  IsNumber,
+  IsBoolean,
+} from 'class-validator';
 import { DeviceStatus } from '../infrastructure/persistence/relational/entities/device.entity';
 
 export class CreateDeviceDto {
@@ -50,7 +56,7 @@ export class CreateDeviceDto {
 
   @ApiProperty({
     example: '1',
-    description: 'tempRange',
+    description: 'temp range',
   })
   @IsOptional()
   @IsNumber()
@@ -58,9 +64,17 @@ export class CreateDeviceDto {
 
   @ApiProperty({
     example: '1',
-    description: 'mosfetSpeed',
+    description: 'mosfet speed',
   })
   @IsOptional()
   @IsNumber()
   mosfetSpeed?: number;
+
+  @ApiProperty({
+    example: '1',
+    description: 'auto control',
+  })
+  @IsOptional()
+  @IsBoolean()
+  autoControl?: boolean;
 }
