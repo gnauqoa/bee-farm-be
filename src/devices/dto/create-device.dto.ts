@@ -42,9 +42,9 @@ export class CreateDeviceDto {
 
   @ApiProperty({
     example: '1',
-    description: 'Light',
+    description: 'lux',
   })
   @IsOptional()
   @IsNumber()
-  light?: number;
+  lux?: number;
 }

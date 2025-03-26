@@ -54,7 +54,6 @@ class EnvironmentVariablesValidator {
 }
 
 export default registerAs<AppConfig>('app', () => {
-  console.log('mqttDomain', process.env.MQTT_DOMAIN);
   validateConfig(process.env, EnvironmentVariablesValidator);
 
   return {

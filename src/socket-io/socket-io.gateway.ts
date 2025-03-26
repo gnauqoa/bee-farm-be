@@ -76,7 +76,7 @@ export class SocketIoGateway
 
       info(`Socket IO - Update device pin: ${JSON.stringify(data)}`);
 
-      await this.deviceService.updateDevicePin(data.id, data);
+      await this.deviceService.socketUpdate(data.id, data);
     } catch (err) {
       error(`Socket IO - ${err.message}`);
     }

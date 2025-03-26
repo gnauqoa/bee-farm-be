@@ -7,12 +7,14 @@ import {
 } from './infrastructure/persistence/relational/entities/device.entity';
 import { MqttService } from '../mqtt/mqtt.service';
 import {
+  UpdateDeviceDto,
   UpdateDevicePinDto,
   UpdateDeviceSensorDto,
 } from './dto/update-device.dto';
 import { SocketIoGateway } from '../socket-io/socket-io.gateway';
 import { info } from 'ps-logger';
 import { Repository, QueryRunner } from 'typeorm';
+import { CrudRequest } from '@dataui/crud';
 
 @Injectable()
 export class DevicesService extends TypeOrmCrudService<DeviceEntity> {
@@ -26,7 +28,7 @@ export class DevicesService extends TypeOrmCrudService<DeviceEntity> {
     super(repo);
   }
 
-  async updateDevicePin(id: number, payload: UpdateDevicePinDto) {
+  async socketUpdate(id: number, payload: UpdateDevicePinDto) {
     const queryRunner: QueryRunner =
       this.repo.manager.connection.createQueryRunner();
 
@@ -34,17 +36,15 @@ export class DevicesService extends TypeOrmCrudService<DeviceEntity> {
     await queryRunner.startTransaction();
 
     try {
-      // Lấy thiết bị với khóa PESSIMISTIC_WRITE
       const device = await queryRunner.manager.findOne(DeviceEntity, {
         where: { id },
-        lock: { mode: 'pessimistic_write' }, // Khóa bản ghi để tránh xung đột
+        lock: { mode: 'pessimistic_write' },
       });
 
       if (!device) {
         throw new Error('Device not found');
       }
 
-      // Kiểm tra xem có thay đổi nào không
       if (
         device.btn1 !== payload.btn1 ||
         device.btn2 !== payload.btn2 ||
@@ -53,13 +53,10 @@ export class DevicesService extends TypeOrmCrudService<DeviceEntity> {
       ) {
         info(`Device updated: ${JSON.stringify(payload)}`);
 
-        // Cập nhật trong giao dịch
         await queryRunner.manager.update(DeviceEntity, id, payload);
 
-        // Commit giao dịch
         await queryRunner.commitTransaction();
 
-        // Gửi thông báo qua MQTT
         this.mqttService.publicMessage(`device/${id}`, payload);
         return payload;
       }
@@ -74,7 +71,7 @@ export class DevicesService extends TypeOrmCrudService<DeviceEntity> {
     }
   }
 
-  async updateDevice(id: number, device: UpdateDeviceSensorDto) {
+  async mqttUpdate(id: number, device: UpdateDeviceSensorDto) {
     const queryRunner: QueryRunner =
       this.repo.manager.connection.createQueryRunner();
 
@@ -82,23 +79,20 @@ export class DevicesService extends TypeOrmCrudService<DeviceEntity> {
     await queryRunner.startTransaction();
 
     try {
-      // Lấy thiết bị với khóa PESSIMISTIC_WRITE
       const existingDevice = await queryRunner.manager.findOne(DeviceEntity, {
         where: { id },
-        lock: { mode: 'pessimistic_write' }, // Khóa bản ghi
+        lock: { mode: 'pessimistic_write' },
       });
 
       if (!existingDevice) {
         throw new Error('Device not found');
       }
 
-      // Cập nhật trong giao dịch
       await queryRunner.manager.update(DeviceEntity, id, {
         ...device,
         status: DeviceStatus.ONLINE,
       });
 
-      // Lấy lại thông tin thiết bị với join
       const newDevice = await queryRunner.manager.findOne(DeviceEntity, {
         where: { id },
         join: {
@@ -109,17 +103,11 @@ export class DevicesService extends TypeOrmCrudService<DeviceEntity> {
         },
       });
 
-      // Commit giao dịch
       await queryRunner.commitTransaction();
 
       info(`Device updated: ${JSON.stringify(newDevice)}`);
 
-      // Gửi thông báo qua Socket.IO
-      this.socketIoGateway.emitToRoom(
-        `device/${id}`, // Sửa device.id thành id
-        'device_data',
-        newDevice,
-      );
+      this.socketIoGateway.emitToRoom(`device/${id}`, 'device_data', newDevice);
 
       return newDevice;
     } catch (err) {
@@ -128,5 +116,27 @@ export class DevicesService extends TypeOrmCrudService<DeviceEntity> {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  async updateDevice(req: CrudRequest, dto: UpdateDeviceDto) {
+    const newDevice = await this.updateOne(req, dto);
+
+    this.socketIoGateway.emitToRoom(
+      `device/${newDevice.id}`,
+      'device_data',
+      newDevice,
+    );
+
+    this.mqttService.publicMessage(`device/${newDevice.id}`, {
+      btn1: newDevice.btn1,
+      btn2: newDevice.btn2,
+      btn3: newDevice.btn3,
+      btn4: newDevice.btn4,
+      humi: newDevice.humi,
+      lux: newDevice.lux,
+      temp: newDevice.temp,
+    });
+
+    return newDevice;
   }
 }
