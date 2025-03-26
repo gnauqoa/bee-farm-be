@@ -4,6 +4,7 @@ import { DeviceEntity } from '../../../../devices/infrastructure/persistence/rel
 import { Repository } from 'typeorm';
 import { UserEntity } from '../../../../users/infrastructure/persistence/relational/entities/user.entity';
 import { info } from 'ps-logger';
+import { RoleEnum } from '../../../../roles/roles.enum';
 
 const devices = [
   {
@@ -39,15 +40,17 @@ export class deviceSeedService {
   ) {}
 
   async run() {
-    await this.repository.delete({});
-    const user = await this.userRepository.findOne({});
     info('Run seed device module');
+    await this.repository.delete({});
+    const user = await this.userRepository.findOne({
+      where: { role: { id: RoleEnum.admin } },
+    });
     if (user)
       for (const device of devices) {
         await this.repository.save(
           this.repository.create({
             name: device.name,
-            user,
+            user_id: user.id,
           }),
         );
       }
