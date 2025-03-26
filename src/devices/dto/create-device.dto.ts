@@ -47,4 +47,20 @@ export class CreateDeviceDto {
   @IsOptional()
   @IsNumber()
   lux?: number;
+
+  @ApiProperty({
+    example: '1',
+    description: 'tempRange',
+  })
+  @IsOptional()
+  @IsNumber()
+  tempRange?: number;
+
+  @ApiProperty({
+    example: '1',
+    description: 'mosfetSpeed',
+  })
+  @IsOptional()
+  @IsNumber()
+  mosfetSpeed?: number;
 }

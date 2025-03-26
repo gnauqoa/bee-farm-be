@@ -11,11 +11,15 @@ export class UpdateDeviceSensorDto {
   btn2?: boolean;
   btn3?: boolean;
   btn4?: boolean;
+  tempRange?: number;
+  mosfetSpeed?: number;
 }
 export class UpdateDevicePinDto {
   id: number;
-  btn1: boolean;
-  btn2: boolean;
-  btn3: boolean;
-  btn4: boolean;
+  btn1?: boolean;
+  btn2?: boolean;
+  btn3?: boolean;
+  btn4?: boolean;
+  tempRange?: number;
+  mosfetSpeed?: number;
 }

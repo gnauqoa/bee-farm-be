@@ -60,8 +60,14 @@ export class DeviceEntity {
   btn4: boolean;
 
   @Column({ type: 'point', nullable: true })
-  @Index() // Tạo index cho truy vấn nhanh hơn
-  position?: string; // Dùng chuỗi "lat,lng" nếu cần
+  @Index()
+  position?: string;
+
+  @Column({ type: 'float', nullable: true })
+  tempRange?: number;
+
+  @Column({ type: 'float', nullable: true })
+  mosfetSpeed?: number;
 
   @CreateDateColumn()
   createdAt: Date;
