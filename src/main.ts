@@ -12,11 +12,24 @@ import { AppModule } from './app.module';
 import validationOptions from './utils/validation-options';
 import { AllConfigType } from './config/config.type';
 import { ResolvePromisesInterceptor } from './utils/serializer.interceptor';
+import { info } from 'ps-logger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create(AppModule);
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
   const configService = app.get(ConfigService<AllConfigType>);
+
+  const frontendDomain = configService.get<string>('app.frontendDomain', {
+    infer: true,
+  });
+  const nodeEnv = configService.get<string>('app.nodeEnv', { infer: true });
+
+  info(`Node environment: ${nodeEnv}`);
+
+  app.enableCors({
+    origin: nodeEnv === 'production' ? frontendDomain : '*',
+    credentials: nodeEnv === 'production',
+  });
 
   app.enableShutdownHooks();
   app.setGlobalPrefix(
