@@ -36,7 +36,7 @@ class EnvironmentVariablesValidator {
   @IsOptional()
   BACKEND_DOMAIN: string;
 
-  @IsUrl({ require_tld: false })
+  @IsString()
   @IsOptional()
   MQTT_DOMAIN: string;
 
