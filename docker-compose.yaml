@@ -35,7 +35,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - ${APP_PORT}:${APP_PORT}
+      - 127.0.0.1:${APP_PORT}:${APP_PORT}
 
 volumes:
   boilerplate-db:
