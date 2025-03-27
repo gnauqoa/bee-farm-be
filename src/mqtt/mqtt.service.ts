@@ -16,13 +16,12 @@ export class MqttService implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    const connectUrl = this.configService.getOrThrow<string>('app.mqttDomain', {
-      infer: true,
-    });
-
     const clientId = `mqtt_${Math.random().toString(16).slice(3)}`;
 
-    this.mqttClient = connect(connectUrl, {
+    this.mqttClient = connect({
+      host: 'mqtt',
+      port: 1883,
+      protocol: 'mqtt',
       clientId,
       clean: true,
       connectTimeout: 4000,
