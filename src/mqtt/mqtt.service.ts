@@ -1,4 +1,5 @@
 import { forwardRef, Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { connect, MqttClient } from 'mqtt';
 import { error, info } from 'ps-logger';
 import { DevicesService } from '../devices/devices.service';
@@ -9,16 +10,23 @@ export class MqttService implements OnModuleInit {
   private mqttClient: MqttClient;
 
   constructor(
+    private configService: ConfigService,
     @Inject(forwardRef(() => DevicesService))
     private deviceService: DevicesService,
   ) {}
 
   onModuleInit() {
     const clientId = `mqtt_${Math.random().toString(16).slice(3)}`;
+    const mqttHost = this.configService.getOrThrow<string>('app.mqttHost', {
+      infer: true,
+    });
+    const mqttPort = this.configService.getOrThrow<number>('app.mqttPort', {
+      infer: true,
+    });
 
     this.mqttClient = connect({
-      host: '127.0.0.1',
-      port: 1883,
+      host: mqttHost,
+      port: mqttPort,
       clientId,
       clean: true,
       connectTimeout: 4000,
