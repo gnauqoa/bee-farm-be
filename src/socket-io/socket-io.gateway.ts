@@ -9,21 +9,13 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { forwardRef, Inject, Injectable, UseGuards } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { WsAuthGuard } from './ws.guard';
 import { info, error } from 'ps-logger';
 import { DevicesService } from '../devices/devices.service';
 import { WsDeviceGuard } from './ws-device.guard';
-import { AppConfig } from '../config/app-config.type'; // Import your AppConfig type
 
 @Injectable()
-@WebSocketGateway({
-  cors: {
-    origin: (origin, callback) => {
-      callback(null, true);
-    },
-  },
-})
+@WebSocketGateway({ cors: { origin: '*' } })
 export class SocketIoGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
@@ -33,57 +25,7 @@ export class SocketIoGateway
   constructor(
     @Inject(forwardRef(() => DevicesService))
     private readonly deviceService: DevicesService,
-    private readonly configService: ConfigService,
-  ) {
-    this.configureCors();
-  }
-
-  private configureCors() {
-    const frontendDomain = this.configService.getOrThrow<AppConfig>(
-      'app.frontendDomain',
-      {
-        infer: true,
-      },
-    );
-
-    const nodeEnv = this.configService.getOrThrow<AppConfig>('app.nodeEnv', {
-      infer: true,
-    });
-
-    const allowedOrigins = this.getAllowedOrigins(frontendDomain, nodeEnv);
-
-    this.server = new Server({
-      cors: {
-        origin: (origin, callback) => {
-          if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-          } else {
-            callback(new Error('Not allowed by CORS'));
-          }
-        },
-        methods: ['GET', 'POST'],
-        credentials: true,
-      },
-    });
-
-    info(
-      'WebSocket CORS configured with origins: ' + allowedOrigins.join(', '),
-    );
-  }
-
-  private getAllowedOrigins(frontendDomain: string, nodeEnv: string): string[] {
-    const origins: string[] = [];
-
-    if (nodeEnv === 'development') {
-      origins.push('*');
-    }
-
-    if (frontendDomain) {
-      origins.push(frontendDomain);
-    }
-
-    return origins;
-  }
+  ) {}
 
   handleConnection(client: Socket) {
     info(`Client connected: ${client.id}`);
