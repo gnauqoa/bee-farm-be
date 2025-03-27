@@ -76,17 +76,17 @@ export class DevicesService extends TypeOrmCrudService<DeviceEntity> {
         return payload;
       }
 
-      this.socketIoGateway.emitToRoom(`device/${id}`, 'device_data', {
-        btn1: payload.btn1,
-        btn2: payload.btn2,
-        btn3: payload.btn3,
-        btn4: payload.btn4,
-        tempRange: payload.tempRange,
-        humiRange: payload.humiRange,
-        luxRange: payload.luxRange,
-        mosfetSpeed: payload.mosfetSpeed,
-        autoControl: payload.autoControl,
+      const newDevice = await queryRunner.manager.findOne(DeviceEntity, {
+        where: { id },
+        join: {
+          alias: 'device',
+          leftJoinAndSelect: {
+            user: 'device.user',
+          },
+        },
       });
+
+      this.socketIoGateway.emitToRoom(`device/${id}`, 'device_data', newDevice);
 
       await queryRunner.commitTransaction();
       return false;
