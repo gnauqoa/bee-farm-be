@@ -118,6 +118,7 @@ export class DevicesService extends TypeOrmCrudService<DeviceEntity> {
       await queryRunner.manager.update(DeviceEntity, id, {
         ...device,
         status: DeviceStatus.ONLINE,
+        lastUpdate: new Date(),
       });
 
       const newDevice = await queryRunner.manager.findOne(DeviceEntity, {

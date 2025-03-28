@@ -13,7 +13,6 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { RoleEnum } from '../roles/roles.enum';
 import { UpdateDeviceDto } from './dto/update-device.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { SocketIoGateway } from '../socket-io/socket-io.gateway';
 import { SCondition } from '@dataui/crud-request/lib/types/request-query.types';
 import { DeviceOwnershipGuard } from './device-ownership.guard';
 
@@ -41,16 +40,13 @@ import { DeviceOwnershipGuard } from './device-ownership.guard';
     },
   },
   routes: {
-    exclude: ['updateOneBase', 'recoverOneBase'],
+    exclude: ['replaceOneBase', 'recoverOneBase'],
   },
 })
 @ApiTags('Devices')
 @Controller({ path: 'devices', version: '1' })
 export class DevicesController implements CrudController<DeviceEntity> {
-  constructor(
-    public service: DevicesService,
-    private readonly socketIoGateway: SocketIoGateway,
-  ) {}
+  constructor(public service: DevicesService) {}
 
   get base(): CrudController<DeviceEntity> {
     return this;
@@ -89,9 +85,9 @@ export class DevicesController implements CrudController<DeviceEntity> {
     return request.device;
   }
 
-  @Override('replaceOneBase')
+  @Override('updateOneBase')
   @UseGuards(DeviceOwnershipGuard)
-  async ovReplaceOneBase(
+  async ovUpdateOneBase(
     @ParsedRequest() req: CrudRequest,
     @ParsedBody() dto: UpdateDeviceDto,
   ): Promise<DeviceEntity> {

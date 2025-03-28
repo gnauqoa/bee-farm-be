@@ -78,6 +78,9 @@ export class DeviceEntity {
   @Column({ type: 'boolean', nullable: true })
   autoControl?: boolean;
 
+  @Column({ type: 'timestamp', nullable: true })
+  lastUpdate: Date;
+
   @CreateDateColumn()
   createdAt: Date;
 
