@@ -8,8 +8,12 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
+  BeforeInsert,
 } from 'typeorm';
 import { UserEntity } from '../../../../../users/infrastructure/persistence/relational/entities/user.entity';
+import * as crypto from 'crypto';
+import { Exclude } from 'class-transformer';
+import bcrypt from 'bcryptjs';
 
 export enum DeviceStatus {
   ONLINE = 'online',
@@ -81,6 +85,18 @@ export class DeviceEntity {
   @Column({ type: 'timestamp', nullable: true })
   lastUpdate: Date;
 
+  @Column({ type: 'boolean', default: false })
+  @Exclude()
+  is_admin: boolean;
+
+  @Column({ type: 'varchar', unique: true })
+  @Exclude()
+  device_key: string;
+
+  @Column({ type: 'varchar', nullable: false })
+  @Exclude()
+  device_pass: string;
+
   @CreateDateColumn()
   createdAt: Date;
 
@@ -89,4 +105,13 @@ export class DeviceEntity {
 
   @DeleteDateColumn()
   deletedAt: Date;
+
+  @BeforeInsert()
+  async generateKeys() {
+    this.device_pass = await bcrypt.hash(
+      this.device_pass ??
+        crypto.createHash('md5').update(Math.random().toString()).digest('hex'),
+      10,
+    );
+  }
 }

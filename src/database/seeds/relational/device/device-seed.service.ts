@@ -13,6 +13,7 @@ const devices = [
       x: 10.7769,
       y: 106.7009,
     },
+    device_pass: 'password123',
   },
   {
     name: 'Device 2',
@@ -20,6 +21,7 @@ const devices = [
       x: 10.7769,
       y: 106.7009,
     },
+    device_pass: 'password123',
   },
   {
     name: 'Device 3',
@@ -27,6 +29,13 @@ const devices = [
       x: 10.7769,
       y: 106.7009,
     },
+    device_pass: 'password123',
+  },
+  {
+    name: 'Device admin',
+    is_admin: true,
+    device_key: 'admin',
+    device_pass: 'admin123',
   },
 ];
 
@@ -51,6 +60,8 @@ export class deviceSeedService {
           this.repository.create({
             name: device.name,
             user_id: user.id,
+            device_pass: device.device_pass,
+            is_admin: device.is_admin,
           }),
         );
       }

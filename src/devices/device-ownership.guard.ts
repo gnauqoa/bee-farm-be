@@ -25,7 +25,7 @@ export class DeviceOwnershipGuard implements CanActivate {
     const userRoleId: number = user.role.id;
 
     const device = await this.devicesService.findOne({
-      where: { id: Number(deviceId) },
+      where: { id: Number(deviceId), is_admin: false },
       join: {
         alias: 'device',
         leftJoinAndSelect: {

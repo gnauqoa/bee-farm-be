@@ -77,4 +77,20 @@ export class CreateDeviceDto {
   @IsOptional()
   @IsBoolean()
   autoControl?: boolean;
+
+  @ApiProperty({
+    example: '1',
+    description: 'Device connect password',
+  })
+  @IsOptional()
+  @IsString()
+  device_pass?: string;
+
+  @ApiProperty({
+    example: '1',
+    description: 'Device key',
+  })
+  @IsOptional()
+  @IsString()
+  device_key?: string;
 }

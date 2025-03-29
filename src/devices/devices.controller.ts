@@ -1,4 +1,4 @@
-import { Controller, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Request, UseGuards } from '@nestjs/common';
 import {
   Crud,
   CrudController,
@@ -15,6 +15,9 @@ import { UpdateDeviceDto } from './dto/update-device.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { SCondition } from '@dataui/crud-request/lib/types/request-query.types';
 import { DeviceOwnershipGuard } from './device-ownership.guard';
+import crypto from 'crypto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
@@ -30,6 +33,13 @@ import { DeviceOwnershipGuard } from './device-ownership.guard';
     join: {
       user: { eager: true },
     },
+    filter: [
+      {
+        field: 'is_admin',
+        operator: 'eq',
+        value: false,
+      },
+    ],
     sort: [{ field: 'createdAt', order: 'ASC' }],
   },
   params: {
@@ -46,7 +56,10 @@ import { DeviceOwnershipGuard } from './device-ownership.guard';
 @ApiTags('Devices')
 @Controller({ path: 'devices', version: '1' })
 export class DevicesController implements CrudController<DeviceEntity> {
-  constructor(public service: DevicesService) {}
+  constructor(
+    public service: DevicesService,
+    @InjectRepository(DeviceEntity) public repo: Repository<DeviceEntity>,
+  ) {}
 
   get base(): CrudController<DeviceEntity> {
     return this;
@@ -60,16 +73,21 @@ export class DevicesController implements CrudController<DeviceEntity> {
     const user = request.user;
     const userId: number = user.id;
     const userRoleId: number = user.role.id;
+    const adminFilter: SCondition = { is_admin: false };
 
     if (userRoleId !== RoleEnum.admin) {
       const userIdFilter: SCondition = { user_id: { $eq: userId } };
+
       if (req.parsed.search && '$and' in req.parsed.search) {
         req.parsed.search.$and = [
           ...(req.parsed.search.$and || []),
           userIdFilter,
+          adminFilter,
         ];
       } else {
-        req.parsed.search = { $and: [req.parsed.search || {}, userIdFilter] };
+        req.parsed.search = {
+          $and: [req.parsed.search || {}, userIdFilter, adminFilter],
+        };
       }
     }
 
@@ -78,10 +96,7 @@ export class DevicesController implements CrudController<DeviceEntity> {
 
   @Override('getOneBase')
   @UseGuards(DeviceOwnershipGuard)
-  ovGetOneBase(
-    @ParsedRequest() req: CrudRequest,
-    @Request() request: any,
-  ): Promise<DeviceEntity> {
+  ovGetOneBase(@Request() request: any): Promise<DeviceEntity> {
     return request.device;
   }
 
@@ -91,7 +106,27 @@ export class DevicesController implements CrudController<DeviceEntity> {
     @ParsedRequest() req: CrudRequest,
     @ParsedBody() dto: UpdateDeviceDto,
   ): Promise<DeviceEntity> {
+    delete dto.device_pass;
+    delete dto.device_key;
     return await this.service.updateDevice(req, dto);
+  }
+
+  @Get(':id/password')
+  @UseGuards(DeviceOwnershipGuard)
+  async getDevicePassword(
+    @ParsedRequest() req: CrudRequest,
+    @Request() request: any,
+  ): Promise<DeviceEntity> {
+    const device_pass = crypto
+      .createHash('md5')
+      .update(Math.random().toString())
+      .digest('hex');
+
+    await this.repo.update(request.device.id, {
+      device_pass: device_pass,
+    });
+
+    return { ...request.device, device_pass: device_pass };
   }
 
   @Override('deleteOneBase')
