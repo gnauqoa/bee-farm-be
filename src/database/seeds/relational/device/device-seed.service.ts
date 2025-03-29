@@ -62,6 +62,7 @@ export class deviceSeedService {
             user_id: user.id,
             device_pass: device.device_pass,
             is_admin: device.is_admin,
+            device_key: device.device_key,
           }),
         );
       }

@@ -30,7 +30,9 @@ export class UpdateDeviceTableForMqttAuth1711630900000
     await queryRunner.query(`
         CREATE FUNCTION update_device_key() RETURNS TRIGGER AS $$
         BEGIN
-            NEW.device_key = concat('dev_', NEW.id);
+            IF NEW.is_admin = FALSE THEN
+                NEW.device_key = concat('dev_', NEW.id);
+            END IF;
             RETURN NEW;
         END;
         $$ LANGUAGE plpgsql;
@@ -66,7 +68,7 @@ export class UpdateDeviceTableForMqttAuth1711630900000
         CREATE FUNCTION create_mqtt_acl_for_device() RETURNS TRIGGER AS $$
         BEGIN
             INSERT INTO mqtt_acl (topic, rw, device_id) VALUES
-            (concat('device/', NEW.id), 1, NEW.id),
+            (concat('device/', NEW.id), 4, NEW.id),
             (concat('device/', NEW.id, '/update'), 2, NEW.id);
             RETURN NEW;
         END;

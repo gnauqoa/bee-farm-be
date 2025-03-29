@@ -117,13 +117,14 @@ export class DevicesController implements CrudController<DeviceEntity> {
     @ParsedRequest() req: CrudRequest,
     @Request() request: any,
   ): Promise<DeviceEntity> {
-    const device_pass = await bcrypt.hash(
-      crypto.createHash('md5').update(Math.random().toString()).digest('hex'),
-      10,
-    );
+    const device_pass = crypto
+      .createHash('md5')
+      .update(Math.random().toString())
+      .digest('hex');
+    const device_hash = await bcrypt.hash(device_pass, 10);
 
     await this.repo.update(request.device.id, {
-      device_pass: device_pass,
+      device_pass: device_hash,
     });
 
     return { ...request.device, device_pass: device_pass };
