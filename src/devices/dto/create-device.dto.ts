@@ -93,4 +93,11 @@ export class CreateDeviceDto {
   @IsOptional()
   @IsString()
   device_key?: string;
+
+  @ApiProperty({
+    example: '1',
+    description: 'User id',
+  })
+  @IsNumber()
+  user_id: number;
 }

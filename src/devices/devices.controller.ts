@@ -19,11 +19,12 @@ import crypto from 'crypto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import bcrypt from 'bcryptjs';
+import { CreateDeviceDto } from './dto/create-device.dto';
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
 @Crud({
   model: { type: DeviceEntity },
-  dto: { update: UpdateDeviceDto },
+  dto: { update: UpdateDeviceDto, create: CreateDeviceDto },
   query: {
     alwaysPaginate: true,
     maxLimit: 100,
