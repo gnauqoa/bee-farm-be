@@ -24,7 +24,10 @@ import { CreateDeviceDto } from './dto/create-device.dto';
 @UseGuards(AuthGuard('jwt'))
 @Crud({
   model: { type: DeviceEntity },
-  dto: { update: UpdateDeviceDto, create: CreateDeviceDto },
+  dto: {
+    update: UpdateDeviceDto,
+    create: CreateDeviceDto,
+  },
   query: {
     alwaysPaginate: true,
     maxLimit: 100,
@@ -107,9 +110,10 @@ export class DevicesController implements CrudController<DeviceEntity> {
     @ParsedRequest() req: CrudRequest,
     @ParsedBody() dto: UpdateDeviceDto,
   ): Promise<DeviceEntity> {
-    delete dto.device_pass;
-    delete dto.device_key;
-    return await this.service.updateDevice(req, dto);
+    return await this.service.updateOne(req, {
+      ...dto,
+      user: dto.user_id ? { id: dto.user_id } : undefined,
+    });
   }
 
   @Get(':id/password')

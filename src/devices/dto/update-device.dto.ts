@@ -1,7 +1,16 @@
-import { PartialType } from '@nestjs/swagger';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { CreateDeviceDto } from './create-device.dto';
+import { IsNumber, IsOptional } from 'class-validator';
 
-export class UpdateDeviceDto extends PartialType(CreateDeviceDto) {}
+export class UpdateDeviceDto extends PartialType(CreateDeviceDto) {
+  @ApiProperty({
+    example: '1',
+    description: 'User id',
+  })
+  @IsNumber()
+  @IsOptional()
+  user_id?: number;
+}
 export class UpdateDevicePinDto {
   id: number;
   btn1?: boolean;

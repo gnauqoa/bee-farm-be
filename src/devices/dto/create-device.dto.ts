@@ -80,24 +80,8 @@ export class CreateDeviceDto {
 
   @ApiProperty({
     example: '1',
-    description: 'Device connect password',
-  })
-  @IsOptional()
-  @IsString()
-  device_pass?: string;
-
-  @ApiProperty({
-    example: '1',
-    description: 'Device key',
-  })
-  @IsOptional()
-  @IsString()
-  device_key?: string;
-
-  @ApiProperty({
-    example: '1',
     description: 'User id',
   })
   @IsNumber()
-  user_id: number;
+  user_id?: number;
 }
