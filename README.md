@@ -29,7 +29,7 @@ Driver board repo: [github.com/gnauqoa/bee-farm-arduino](https://github.com/gnau
 
 ## Features
 
-- **Real-Time Monitoring**: Track temperature, humidity, and light levels within the beekeeping environment.
+- **Real-Time Monitoring**: Track temperature, humidity, and light levels within the beekeeping environment with MQTT for hardware device and websocket for web client.
 - **Actuator Control**: Adjust environmental conditions using actuators like incandescent lights, misting machines, and LED lights.
 - **Data Storage**: All sensor data is stored in a PostgreSQL database for historical analysis and reporting.
 - **User Interface**: An easy-to-use web interface to monitor and control the farm remotely.
@@ -77,6 +77,7 @@ docker compose up --build -d
 - [x] Swagger.
 - [x] E2E and units tests.
 - [x] Docker.
+- [x] MQTT server with authorization and authentication.
 
 ## License
 
