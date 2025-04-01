@@ -38,10 +38,24 @@ Driver board repo: [github.com/gnauqoa/bee-farm-arduino](https://github.com/gnau
 
 ### Using Docker Compose
 
-```bash
-cp env-example-relational .env
-docker compose up --build -d
-```
+1. Clone the backend repository:
+
+   ```bash
+   git clone https://github.com/gnauqoa/bee-farm-be.git
+   cd bee-farm-be
+   ```
+
+2. Configure environment variables for the backend (e.g., database credentials, sensor settings).
+
+   ```bash
+   cp env-example-relational .env
+   ```
+
+3. Run docker compose
+
+   ```bash
+   docker compose up --build -d
+   ```
 
 ### Development Setup
 
@@ -59,6 +73,10 @@ docker compose up --build -d
    ```
 
 3. Configure environment variables for the backend (e.g., database credentials, sensor settings).
+
+   ```bash
+   cp env-example-relational .env
+   ```
 
 4. Run the backend:
    ```bash
