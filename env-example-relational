@@ -4,21 +4,32 @@ APP_NAME="Bee API"
 API_PREFIX=api
 APP_FALLBACK_LANGUAGE=en
 APP_HEADER_LANGUAGE=x-custom-lang
-FRONTEND_DOMAIN=http://localhost:3000
+FRONTEND_DOMAIN=https://bee-farm-fe.onrender.com
 BACKEND_DOMAIN=https://beefarm.onrender.com
-MQTT_DOMAIN=http://localhost:1883
+
+MQTT_HOST=mqtt://mosquitto:1883
+MQTT_PORT=1883
+MQTT_USER=admin
+MQTT_PASSWORD=admin123
 
 SWAGGER_USERNAME=beefarm
 SWAGGER_PASSWORD="laaal12-!3"
 
-
-DATABASE_URL=postgres://bee_farm:ski73knzj12t3sv712@postgres:5432/bee_farm_service
+DATABASE_URL=postgresql://bee_farm:ski73knzj12t3sv712@postgres:5432/bee_farm_service
 DATABASE_TYPE=postgres
 DATABASE_HOST=postgres
 DATABASE_PORT=5432
 DATABASE_USERNAME=bee_farm
-DATABASE_PASSWORD="ski73knzj12t3sv712"
+DATABASE_PASSWORD=ski73knzj12t3sv712
 DATABASE_NAME=bee_farm_service
+
+# DATABASE_URL=localhost://postgres@localhost:5432/bee_farm_service
+# DATABASE_TYPE=postgres
+# DATABASE_HOST=localhost
+# DATABASE_PORT=5432
+# DATABASE_USERNAME=postgres
+# DATABASE_PASSWORD=
+# DATABASE_NAME=bee_farm_service
 DATABASE_SYNCHRONIZE=false
 DATABASE_MAX_CONNECTIONS=3
 DATABASE_SSL_ENABLED=false
